@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Student Hub - Modern Management{% endblock %}</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation Drawer (Vertical) -->
+        <aside class="app-sidebar" id="app-sidebar">
+            <div class="sidebar-brand">
+                <a href="/" class="app-logo">
+                    <span class="logo-icon"><i class="fa-solid fa-graduation-cap animate-bounce"></i></span>
+                    <span class="logo-text">Student<span class="highlight">Hub</span></span>
+                </a>
+                <button class="sidebar-close-btn" id="sidebar-close-btn">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            {% if current_user.is_authenticated %}
+            <div class="sidebar-user">
+                <a href="{{ url_for('profile') }}" class="sidebar-user-info" title="View Profile Settings">
+                    <span class="user-avatar"><i class="fa-regular fa-user"></i></span>
+                    <div class="user-meta">
+                        <span class="username-display">{{ current_user.username }}</span>
+                        <span class="user-email-display" style="font-size: 11px; color: var(--text-muted); display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px;">{{ current_user.email }}</span>
+                    </div>
+                </a>
+            </div>
+            {% endif %}
+
+            <nav class="sidebar-nav">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.path == '/dashboard' %}active{% endif %}">
+                        <i class="fa-solid fa-chart-pie"></i> <span>Dashboard</span>
+                    </a>
+                    <a href="{{ url_for('students_list') }}" class="nav-link {% if request.path == '/students' or request.path.startswith('/student/') %}active{% endif %}">
+                        <i class="fa-solid fa-user-group"></i> <span>Students</span>
+                    </a>
+                    <a href="{{ url_for('attendance') }}" class="nav-link {% if request.path == '/attendance' %}active{% endif %}">
+                        <i class="fa-solid fa-calendar-check"></i> <span>Attendance</span>
+                    </a>
+                    <a href="{{ url_for('marks') }}" class="nav-link {% if request.path == '/marks' %}active{% endif %}">
+                        <i class="fa-solid fa-square-poll-vertical"></i> <span>Marks</span>
+                    </a>
+                    <a href="{{ url_for('profile') }}" class="nav-link {% if request.path == '/profile' %}active{% endif %}">
+                        <i class="fa-solid fa-user-gear"></i> <span>My Profile</span>
+                    </a>
+                    <a href="{{ url_for('feedback_panel') }}" class="nav-link {% if request.path == '/feedback' %}active{% endif %}">
+                        <i class="fa-solid fa-comments"></i> <span>Feedback Box</span>
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="nav-link {% if request.path == '/login' %}active{% endif %}">
+                        <i class="fa-solid fa-right-to-bracket"></i> <span>Login</span>
+                    </a>
+                    <a href="{{ url_for('register') }}" class="nav-link {% if request.path == '/register' %}active{% endif %}">
+                        <i class="fa-solid fa-user-plus"></i> <span>Register</span>
+                    </a>
+                    <a href="{{ url_for('feedback_panel') }}" class="nav-link {% if request.path == '/feedback' %}active{% endif %}">
+                        <i class="fa-solid fa-comments"></i> <span>Feedback Box</span>
+                    </a>
+                {% endif %}
+            </nav>
+
+            <div class="sidebar-footer">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('logout') }}" class="btn-logout-sidebar">
+                        <i class="fa-solid fa-power-off"></i> <span>Log Out</span>
+                    </a>
+                {% else %}
+                    <div style="font-size: 11px; text-align: center; color: var(--text-muted); opacity: 0.6;">Welcome Guest</div>
+                {% endif %}
+            </div>
+        </aside>
+
+        <!-- Main Layout Area -->
+        <div class="main-layout">
+            <!-- Mobile Header Top Bar -->
+            <header class="mobile-header">
+                <button class="hamburger-menu" id="hamburger-menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                
+                <a href="/" class="app-logo">
+                    <span class="logo-icon"><i class="fa-solid fa-graduation-cap"></i></span>
+                    <span class="logo-text">Student<span class="highlight">Hub</span></span>
+                </a>
+                
+                <div class="mobile-header-actions">
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('profile') }}" class="mobile-user-link">
+                            <span class="user-avatar-sm"><i class="fa-regular fa-user"></i></span>
+                        </a>
+                    {% endif %}
+                </div>
+            </header>
+
+            <!-- Floating Background Orbs for Deep Ambient Glow -->
+            <div class="bg-glow orb-1"></div>
+            <div class="bg-glow orb-2"></div>
+            <div class="bg-glow orb-3"></div>
+
+            <!-- Interactive Animated Flash Messages (Toasts) -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-container">
+                        {% for category, message in messages %}
+                            <div class="flash-message toast-{{ category }}" role="alert">
+                                <span class="toast-icon">
+                                    {% if category == 'success' %}
+                                        <i class="fa-solid fa-circle-check"></i>
+                                    {% else %}
+                                        <i class="fa-solid fa-circle-exclamation"></i>
+                                    {% endif %}
+                                </span>
+                                <span class="toast-text">{{ message }}</span>
+                                <button class="toast-close-btn" onclick="dismissToast(this)">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- Main Content Area -->
+            <main class="main-content">
+                <div class="content-container page-enter-animation">
+                    {% block content %}
+                    {% endblock %}
+                </div>
+            </main>
+
+            <!-- Premium Footer -->
+            <footer class="app-footer">
+                <div class="footer-container">
+                    <p>&copy; 2026 StudentHub. Engineered for Academic Excellence.</p>
+                    <div class="footer-links">
+                        <a href="#"><i class="fa-brands fa-github"></i> Source</a>
+                        <a href="#"><i class="fa-solid fa-shield-halved"></i> Security</a>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Micro-Interaction JavaScript -->
+    <script>
+        // Dismiss flash alert with a smooth fade & height collapse animation
+        function dismissToast(button) {
+            const toast = button.closest('.flash-message');
+            toast.style.animation = 'fadeOutDown 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards';
+            setTimeout(() => {
+                toast.remove();
+            }, 400);
+        }
+
+        // Auto-dismiss success toasts after 5 seconds
+        document.addEventListener("DOMContentLoaded", () => {
+            const successToasts = document.querySelectorAll('.toast-success');
+            successToasts.forEach(toast => {
+                setTimeout(() => {
+                    const closeBtn = toast.querySelector('.toast-close-btn');
+                    if (closeBtn) dismissToast(closeBtn);
+                }, 5000);
+            });
+
+            // Mobile sidebar drawer toggle mechanism
+            const hamburger = document.getElementById("hamburger-menu");
+            const sidebar = document.getElementById("app-sidebar");
+            const closeBtn = document.getElementById("sidebar-close-btn");
+
+            if (hamburger && sidebar) {
+                hamburger.addEventListener("click", () => {
+                    sidebar.classList.add("active");
+                });
+            }
+            if (closeBtn && sidebar) {
+                closeBtn.addEventListener("click", () => {
+                    sidebar.classList.remove("active");
+                });
+            }
+        });
+    </script>
+</body>
+</html>

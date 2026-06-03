@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% block title %}User Profile - StudentHub{% endblock %}
+
+{% block content %}
+<div class="management-container">
+    <!-- Header Section -->
+    <div class="directory-header glass-panel">
+        <div class="header-info">
+            <span class="badge badge-accent"><i class="fa-regular fa-user"></i> Profile Panel</span>
+            <h1>User Profile Settings</h1>
+            <p>Manage your account settings, contact email, and connect your programming profiles.</p>
+        </div>
+        <div class="header-stats">
+            <div class="stat-circle bg-glowing-gold">
+                <span class="stat-number"><i class="fa-solid fa-user-gear"></i></span>
+                <span class="stat-label">Config</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="dashboard-details-grid">
+        <!-- Account Information Form -->
+        <div class="dashboard-column glass-panel">
+            <div class="section-title">
+                <i class="fa-solid fa-id-card text-primary"></i>
+                <h3>Administrative Details</h3>
+            </div>
+            <p class="action-desc">Update your coding handles and personal platform preferences below.</p>
+            
+            <form action="{{ url_for('profile') }}" method="POST" class="auth-form" style="margin-top: 20px;">
+                <div class="form-group">
+                    <label>Username (Read-Only)</label>
+                    <div class="input-with-icon">
+                        <i class="fa-regular fa-user" style="opacity: 0.6;"></i>
+                        <input type="text" value="{{ user.username }}" readonly style="background: rgba(255, 255, 255, 0.02); color: var(--text-muted); cursor: not-allowed; border-color: rgba(255, 255, 255, 0.04);">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Email (Read-Only)</label>
+                    <div class="input-with-icon">
+                        <i class="fa-regular fa-envelope" style="opacity: 0.6;"></i>
+                        <input type="email" value="{{ user.email }}" readonly style="background: rgba(255, 255, 255, 0.02); color: var(--text-muted); cursor: not-allowed; border-color: rgba(255, 255, 255, 0.04);">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="leetcode_id">LeetCode Username</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-code"></i>
+                        <input type="text" id="leetcode_id" name="leetcode_id" placeholder="Enter LeetCode username" value="{{ user.leetcode_id or '' }}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="hackerearth_id">HackerEarth Username</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-terminal"></i>
+                        <input type="text" id="hackerearth_id" name="hackerearth_id" placeholder="Enter HackerEarth username" value="{{ user.hackerearth_id or '' }}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="other_id">Other Coding Profile ID</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-globe"></i>
+                        <input type="text" id="other_id" name="other_id" placeholder="Enter Github or other ID" value="{{ user.other_id or '' }}">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary btn-block animate-pulse-glow" style="margin-top: 30px;">
+                    Update Profile <i class="fa-solid fa-floppy-disk"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- Connected Accounts Panel -->
+        <div class="dashboard-column glass-panel">
+            <div class="section-title">
+                <i class="fa-solid fa-link text-primary"></i>
+                <h3>Quick Connect Coding Portals</h3>
+            </div>
+            <p class="action-desc">Instantly launch your configured public coding profiles in a new tab.</p>
+            
+            <div class="actions-vertical-menu" style="margin-top: 20px;">
+                {% if user.leetcode_id %}
+                    <a href="https://leetcode.com/u/{{ user.leetcode_id }}/" target="_blank" class="action-menu-item">
+                        <span class="menu-item-icon" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;"><i class="fa-solid fa-code"></i></span>
+                        <div class="menu-item-text">
+                            <strong>LeetCode Profile</strong>
+                            <span class="text-accent">{{ user.leetcode_id }}</span>
+                        </div>
+                        <i class="fa-solid fa-arrow-up-right-from-square item-arrow"></i>
+                    </a>
+                {% else %}
+                    <div class="action-menu-item" style="opacity: 0.5; cursor: default;">
+                        <span class="menu-item-icon" style="background: rgba(255, 255, 255, 0.05); color: var(--text-muted);"><i class="fa-solid fa-code"></i></span>
+                        <div class="menu-item-text">
+                            <strong>LeetCode Profile</strong>
+                            <span>Not connected</span>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if user.hackerearth_id %}
+                    <a href="https://www.hackerearth.com/@{{ user.hackerearth_id }}/" target="_blank" class="action-menu-item">
+                        <span class="menu-item-icon" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;"><i class="fa-solid fa-terminal"></i></span>
+                        <div class="menu-item-text">
+                            <strong>HackerEarth Profile</strong>
+                            <span class="text-accent">{{ user.hackerearth_id }}</span>
+                        </div>
+                        <i class="fa-solid fa-arrow-up-right-from-square item-arrow"></i>
+                    </a>
+                {% else %}
+                    <div class="action-menu-item" style="opacity: 0.5; cursor: default;">
+                        <span class="menu-item-icon" style="background: rgba(255, 255, 255, 0.05); color: var(--text-muted);"><i class="fa-solid fa-terminal"></i></span>
+                        <div class="menu-item-text">
+                            <strong>HackerEarth Profile</strong>
+                            <span>Not connected</span>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if user.other_id %}
+                    <a href="https://github.com/{{ user.other_id }}" target="_blank" class="action-menu-item">
+                        <span class="menu-item-icon" style="background: rgba(168, 85, 247, 0.15); color: #a855f7;"><i class="fa-brands fa-github"></i></span>
+                        <div class="menu-item-text">
+                            <strong>Other Profile (GitHub)</strong>
+                            <span class="text-accent">{{ user.other_id }}</span>
+                        </div>
+                        <i class="fa-solid fa-arrow-up-right-from-square item-arrow"></i>
+                    </a>
+                {% else %}
+                    <div class="action-menu-item" style="opacity: 0.5; cursor: default;">
+                        <span class="menu-item-icon" style="background: rgba(255, 255, 255, 0.05); color: var(--text-muted);"><i class="fa-solid fa-globe"></i></span>
+                        <div class="menu-item-text">
+                            <strong>Other Profile</strong>
+                            <span>Not connected</span>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="glass-panel" style="margin-top: 30px; padding: 20px; border-style: dashed; border-color: rgba(99, 102, 241, 0.3);">
+                <h4 style="font-family: var(--font-heading); color: white; margin-bottom: 8px;"><i class="fa-solid fa-shield-halved text-primary"></i> Data Security</h4>
+                <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">Coding handles are retrieved purely for profile linking and identification within the StudentHub dashboard roster. No credentials or passwords are ever requested.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

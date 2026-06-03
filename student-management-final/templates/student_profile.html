@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+{% block title %}{{ student.name }} Profile - StudentHub{% endblock %}
+
+{% block content %}
+<div class="management-container">
+    <!-- Header Section -->
+    <div class="directory-header glass-panel">
+        <div class="header-info">
+            <span class="badge badge-accent"><i class="fa-solid fa-graduation-cap"></i> Student Profile</span>
+            <h1>Academic Profile: {{ student.name }}</h1>
+            <p>View enrollment details, competitive programming links, and performance metrics.</p>
+        </div>
+        <div class="header-stats">
+            <div class="stat-circle bg-glowing-gold">
+                <span class="stat-number">{{ att_summary.percentage }}%</span>
+                <span class="stat-label">Attendance</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="dashboard-details-grid">
+        <!-- Student Information Form (Edit Mode) -->
+        <div class="dashboard-column glass-panel">
+            <div class="section-title">
+                <i class="fa-solid fa-id-card text-primary"></i>
+                <h3>Student Administrative Details</h3>
+            </div>
+            <p class="action-desc">Update this student's registration metadata and public coding usernames below.</p>
+            
+            <form action="{{ url_for('student_profile', id=student.id) }}" method="POST" class="auth-form" style="margin-top: 20px;">
+                <div class="form-group">
+                    <label for="name">Student Name</label>
+                    <div class="input-with-icon">
+                        <i class="fa-regular fa-user"></i>
+                        <input type="text" id="name" name="name" value="{{ student.name }}" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Email Address (Read-Only)</label>
+                    <div class="input-with-icon">
+                        <i class="fa-regular fa-envelope" style="opacity: 0.6;"></i>
+                        <input type="email" value="{{ student.email }}" readonly style="background: rgba(255, 255, 255, 0.02); color: var(--text-muted); cursor: not-allowed; border-color: rgba(255, 255, 255, 0.04);">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="course">Assigned Course</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-book-open-reader"></i>
+                        <input type="text" id="course" name="course" value="{{ student.course }}" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="leetcode_id">LeetCode Username</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-code"></i>
+                        <input type="text" id="leetcode_id" name="leetcode_id" placeholder="Enter LeetCode username" value="{{ student.leetcode_id or '' }}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="hackerearth_id">HackerEarth Username</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-terminal"></i>
+                        <input type="text" id="hackerearth_id" name="hackerearth_id" placeholder="Enter HackerEarth username" value="{{ student.hackerearth_id or '' }}">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary btn-block animate-pulse-glow" style="margin-top: 30px;">
+                    Update Student Record <i class="fa-solid fa-floppy-disk"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- Connected Roster & Quick Statistics -->
+        <div class="dashboard-column glass-panel">
+            <div class="section-title">
+                <i class="fa-solid fa-link text-primary"></i>
+                <h3>Coding Platform Portals</h3>
+            </div>
+            <p class="action-desc">Instantly open public programming accounts configured for this student.</p>
+            
+            <div class="actions-vertical-menu" style="margin-top: 20px; margin-bottom: 30px;">
+                {% if student.leetcode_id %}
+                    <a href="https://leetcode.com/u/{{ student.leetcode_id }}/" target="_blank" class="action-menu-item">
+                        <span class="menu-item-icon" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;"><i class="fa-solid fa-code"></i></span>
+                        <div class="menu-item-text">
+                            <strong>LeetCode Profile</strong>
+                            <span class="text-accent">{{ student.leetcode_id }}</span>
+                        </div>
+                        <i class="fa-solid fa-arrow-up-right-from-square item-arrow"></i>
+                    </a>
+                {% else %}
+                    <div class="action-menu-item" style="opacity: 0.5; cursor: default;">
+                        <span class="menu-item-icon" style="background: rgba(255, 255, 255, 0.05); color: var(--text-muted);"><i class="fa-solid fa-code"></i></span>
+                        <div class="menu-item-text">
+                            <strong>LeetCode Connection</strong>
+                            <span>Not connected</span>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% if student.hackerearth_id %}
+                    <a href="https://www.hackerearth.com/@{{ student.hackerearth_id }}/" target="_blank" class="action-menu-item">
+                        <span class="menu-item-icon" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;"><i class="fa-solid fa-terminal"></i></span>
+                        <div class="menu-item-text">
+                            <strong>HackerEarth Profile</strong>
+                            <span class="text-accent">{{ student.hackerearth_id }}</span>
+                        </div>
+                        <i class="fa-solid fa-arrow-up-right-from-square item-arrow"></i>
+                    </a>
+                {% else %}
+                    <div class="action-menu-item" style="opacity: 0.5; cursor: default;">
+                        <span class="menu-item-icon" style="background: rgba(255, 255, 255, 0.05); color: var(--text-muted);"><i class="fa-solid fa-terminal"></i></span>
+                        <div class="menu-item-text">
+                            <strong>HackerEarth Connection</strong>
+                            <span>Not connected</span>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Attendance stats -->
+            <div class="section-title">
+                <i class="fa-solid fa-chart-line text-success"></i>
+                <h3>Attendance Roll Call Ratios</h3>
+            </div>
+            <div style="display: flex; justify-content: space-around; gap: 10px; margin-top: 15px;">
+                <div style="text-align: center; flex: 1; padding: 12px; background: rgba(16, 185, 129, 0.08); border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.15);">
+                    <span style="display:block; font-size: 20px; font-weight:700; color: #10b981;">{{ att_summary.present }}</span>
+                    <span style="font-size:11px; color: var(--text-muted); text-transform:uppercase;">Present</span>
+                </div>
+                <div style="text-align: center; flex: 1; padding: 12px; background: rgba(245, 158, 11, 0.08); border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.15);">
+                    <span style="display:block; font-size: 20px; font-weight:700; color: #f59e0b;">{{ att_summary.late }}</span>
+                    <span style="font-size:11px; color: var(--text-muted); text-transform:uppercase;">Late</span>
+                </div>
+                <div style="text-align: center; flex: 1; padding: 12px; background: rgba(239, 68, 68, 0.08); border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.15);">
+                    <span style="display:block; font-size: 20px; font-weight:700; color: #ef4444;">{{ att_summary.absent }}</span>
+                    <span style="font-size:11px; color: var(--text-muted); text-transform:uppercase;">Absent</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Charts for Marks and Attendance -->
+    <div class="dashboard-details-grid" style="margin-top: 24px;">
+        <!-- Student Marks Chart -->
+        <div class="dashboard-column glass-panel">
+            <div class="section-title">
+                <i class="fa-solid fa-square-poll-vertical text-warning"></i>
+                <h3>Academic Performance (Grades)</h3>
+            </div>
+            <p class="action-desc">Subject performance ratings achieved in enrolled courses.</p>
+            <div class="chart-container" style="position: relative; height: 260px; width: 100%;">
+                <canvas id="studentMarksChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Student Attendance Chart -->
+        <div class="dashboard-column glass-panel">
+            <div class="section-title">
+                <i class="fa-solid fa-calendar-days text-success"></i>
+                <h3>Attendance Log (Last 10 Days)</h3>
+            </div>
+            <p class="action-desc">Timeline tracking presence status percentages over time.</p>
+            <div class="chart-container" style="position: relative; height: 260px; width: 100%;">
+                <canvas id="studentAttendanceChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js CDN & Render Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Marks Chart Setup
+        const subjects = {{ subjects | tojson }};
+        const scores = {{ scores | tojson }};
+
+        const ctxMarks = document.getElementById('studentMarksChart').getContext('2d');
+        new Chart(ctxMarks, {
+            type: 'bar',
+            data: {
+                labels: subjects,
+                datasets: [{
+                    label: 'Score / 100',
+                    data: scores,
+                    backgroundColor: 'rgba(245, 158, 11, 0.45)', // Warning Orange-Gold
+                    borderColor: '#f59e0b',
+                    borderWidth: 1.5,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                        titleColor: '#fff',
+                        bodyColor: '#94a3b8',
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans' } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans' } }
+                    }
+                }
+            }
+        });
+
+        // Attendance Chart Setup
+        const attendanceLabels = {{ attendance_labels | tojson }};
+        const attendanceScores = {{ attendance_scores | tojson }}; // 100 = Present, 70 = Late, 0 = Absent
+
+        const ctxAttendance = document.getElementById('studentAttendanceChart').getContext('2d');
+        new Chart(ctxAttendance, {
+            type: 'line',
+            data: {
+                labels: attendanceLabels,
+                datasets: [{
+                    label: 'Punctuality Level',
+                    data: attendanceScores,
+                    fill: true,
+                    backgroundColor: 'rgba(16, 185, 129, 0.15)', // Success Green
+                    borderColor: '#10b981',
+                    borderWidth: 2,
+                    tension: 0.25,
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#fff',
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                        titleColor: '#fff',
+                        bodyColor: '#94a3b8',
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(context) {
+                                let val = context.parsed.y;
+                                if (val === 100) return "Status: Present";
+                                if (val === 70) return "Status: Late";
+                                return "Status: Absent";
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { 
+                            color: '#94a3b8', 
+                            font: { family: 'Plus Jakarta Sans' },
+                            callback: function(value) {
+                                if (value === 100) return "Present";
+                                if (value === 70) return "Late";
+                                if (value === 0) return "Absent";
+                                return "";
+                            }
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans' } }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

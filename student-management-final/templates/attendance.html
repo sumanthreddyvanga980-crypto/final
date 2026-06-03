@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block title %}Attendance - StudentHub{% endblock %}
+
+{% block content %}
+<div class="management-container">
+    <!-- Header Section -->
+    <div class="directory-header glass-panel">
+        <div class="header-info">
+            <span class="badge badge-success"><i class="fa-solid fa-calendar-days"></i> Roll Call</span>
+            <h1>Attendance Tracking</h1>
+            <p>Monitor daily attendance records, record classroom roll calls, and view status summaries.</p>
+        </div>
+    </div>
+
+    <!-- Active Attendance Sheet -->
+    <div class="table-section glass-panel" style="padding: 30px;">
+        <form action="{{ url_for('attendance') }}" method="POST">
+            <div class="section-title-container" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 15px;">
+                <div class="section-title" style="margin-bottom:0;">
+                    <i class="fa-solid fa-calendar-check text-primary"></i>
+                    <h3>Roll Call Register</h3>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label style="font-size: 13px; font-weight:600; color: var(--text-muted); text-transform: uppercase;">Selected Date:</label>
+                    <input type="date" name="date" value="{{ today }}" style="background: rgba(13, 20, 35, 0.5); border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 12px; color: white; outline: none; font-size:13px; font-family:var(--font-body);">
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                {% if student_att_info %}
+                    <table class="glass-table">
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Course</th>
+                                <th style="text-align: center;">Overall Percentage</th>
+                                <th style="text-align: center;">Today's Attendance Status</th>
+                                <th style="text-align: center;">Set Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for info in student_att_info %}
+                                <tr class="table-row-interactive" onclick="window.location='{{ url_for('student_profile', id=info.student.id) }}'" style="cursor: pointer;">
+                                    <td>
+                                        <div class="student-profile-cell">
+                                            <span class="avatar-sm"><i class="fa-solid fa-user-graduate"></i></span>
+                                            <strong>{{ info.student.name }}</strong>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge badge-course" style="margin-bottom: 0;">{{ info.student.course }}</span></td>
+                                    <td>
+                                        <div class="progress-bar-container" style="background: rgba(255, 255, 255, 0.05); height: 20px; border-radius: 10px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color);">
+                                            <div class="progress-bar-fill {% if info.percentage >= 90 %}bg-success{% elif info.percentage >= 80 %}bg-warning{% else %}bg-danger{% endif %}" style="width: {{ info.percentage }}%; height: 100%; position: absolute; left: 0; top: 0; transition: width 0.5s ease;"></div>
+                                            <span class="progress-bar-text" style="font-size: 11px; font-weight:700; z-index: 1; color: white;">{{ info.percentage }}%</span>
+                                        </div>
+                                    </td>
+                                    
+                                    <td style="text-align: center;">
+                                        {% if info.today_status == 'Present' %}
+                                            <span class="pill-badge pill-success" style="padding: 4px 10px; font-size:11px; font-weight:600; border-radius:20px; display:inline-flex; align-items:center; gap:5px; background:rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.25);"><i class="fa-solid fa-circle-check"></i> Present</span>
+                                        {% elif info.today_status == 'Late' %}
+                                            <span class="pill-badge pill-warning" style="padding: 4px 10px; font-size:11px; font-weight:600; border-radius:20px; display:inline-flex; align-items:center; gap:5px; background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.25);"><i class="fa-solid fa-circle-minus"></i> Late</span>
+                                        {% elif info.today_status == 'Absent' %}
+                                            <span class="pill-badge pill-danger" style="padding: 4px 10px; font-size:11px; font-weight:600; border-radius:20px; display:inline-flex; align-items:center; gap:5px; background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.25);"><i class="fa-solid fa-circle-xmark"></i> Absent</span>
+                                        {% else %}
+                                            <span class="pill-badge" style="padding: 4px 10px; font-size:11px; font-weight:600; border-radius:20px; display:inline-flex; align-items:center; gap:5px; background:rgba(255,255,255,0.05); color:var(--text-muted); border:1px solid var(--border-color);"><i class="fa-regular fa-calendar"></i> Not Marked</span>
+                                        {% endif %}
+                                    </td>
+                                    
+                                    <td style="text-align: center;" onclick="event.stopPropagation();">
+                                        <select name="status_{{ info.student.id }}" style="background: rgba(13, 20, 35, 0.6); border: 1px solid var(--border-color); border-radius: 8px; padding: 6px 12px; color: white; font-size: 13px; cursor: pointer; font-family:var(--font-body);">
+                                            <option value="Present" {% if info.today_status == 'Present' %}selected{% endif %}>Present</option>
+                                            <option value="Late" {% if info.today_status == 'Late' %}selected{% endif %}>Late</option>
+                                            <option value="Absent" {% if info.today_status == 'Absent' %}selected{% endif %}>Absent</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    
+                    <div style="display: flex; justify-content: flex-end; margin-top: 25px;">
+                        <button type="submit" class="btn-primary animate-pulse-glow" style="padding: 12px 30px;">
+                            Save Daily Register <i class="fa-solid fa-floppy-disk"></i>
+                        </button>
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon"><i class="fa-solid fa-user-slash animate-bounce"></i></div>
+                        <h4>No Students Enrolled</h4>
+                        <p>No student accounts are available. Enroll students in the Roster page before tracking attendance.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .bg-success { background-color: #10b981 !important; }
+    .bg-warning { background-color: #f59e0b !important; }
+    .bg-danger { background-color: #ef4444 !important; }
+    select:focus {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 3px var(--primary-soft);
+    }
+</style>
+{% endblock %}

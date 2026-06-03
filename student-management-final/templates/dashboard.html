@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - StudentHub{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+    <!-- Dashboard Header -->
+    <div class="directory-header glass-panel">
+        <div class="header-info">
+            <span class="badge badge-primary"><i class="fa-solid fa-gauge-high"></i> Dashboard Control</span>
+            <h1>Academic Intelligence Console</h1>
+            <p>Welcome back, <strong class="text-accent">{{ current_user.username }}</strong>! Here is your school's current standing.</p>
+        </div>
+        <div class="header-date">
+            <div class="glass-pill"><i class="fa-regular fa-clock animate-pulse"></i> Term: Spring 2026</div>
+        </div>
+    </div>
+
+    <!-- Beautiful Analytics Metric Cards Grid -->
+    <div class="stats-grid">
+        <div class="stat-card glass-panel stat-card-hover">
+            <div class="card-icon bg-soft-primary"><i class="fa-solid fa-graduation-cap"></i></div>
+            <div class="card-info">
+                <h3>Students</h3>
+                <span class="stat-value">{{ student_count }}</span>
+                <span class="stat-trend trend-up"><i class="fa-solid fa-arrow-trend-up"></i> Live Count</span>
+            </div>
+            <div class="card-accent-line bg-primary"></div>
+        </div>
+
+        <div class="stat-card glass-panel stat-card-hover">
+            <div class="card-icon bg-soft-success"><i class="fa-regular fa-calendar-check"></i></div>
+            <div class="card-info">
+                <h3>Avg Attendance</h3>
+                <span class="stat-value">{{ avg_attendance }}</span>
+                <span class="stat-trend trend-up"><i class="fa-solid fa-arrow-trend-up"></i> Live Roll Calls</span>
+            </div>
+            <div class="card-accent-line bg-success"></div>
+        </div>
+
+        <div class="stat-card glass-panel stat-card-hover">
+            <div class="card-icon bg-soft-warning"><i class="fa-solid fa-award"></i></div>
+            <div class="card-info">
+                <h3>Performance</h3>
+                <span class="stat-value">{{ avg_grade }} Grade</span>
+                <span class="stat-trend trend-stable"><i class="fa-solid fa-chart-line"></i> Class Avg</span>
+            </div>
+            <div class="card-accent-line bg-warning"></div>
+        </div>
+
+        <div class="stat-card glass-panel stat-card-hover">
+            <div class="card-icon bg-soft-danger"><i class="fa-solid fa-server"></i></div>
+            <div class="card-info">
+                <h3>API Server</h3>
+                <span class="stat-value">99.9%</span>
+                <span class="stat-trend trend-up"><i class="fa-solid fa-check-circle"></i> Operational</span>
+            </div>
+            <div class="card-accent-line bg-danger"></div>
+        </div>
+    </div>
+
+    <!-- Dynamic Analytics Graphs Grid -->
+    <div class="dashboard-details-grid">
+        <div class="dashboard-column glass-panel">
+            <div class="section-title">
+                <i class="fa-solid fa-chart-bar text-primary"></i>
+                <h3>Subject Performance Matrix</h3>
+            </div>
+            <p class="action-desc">Average grades for the top enrolled students.</p>
+            <div class="chart-container" style="position: relative; height: 260px; width: 100%;">
+                <canvas id="marksChart"></canvas>
+            </div>
+        </div>
+
+        <div class="dashboard-column glass-panel">
+            <div class="section-title">
+                <i class="fa-solid fa-chart-line text-success"></i>
+                <h3>Weekly Attendance Profile</h3>
+            </div>
+            <p class="action-desc">Percentage of roll calls present and punctual.</p>
+            <div class="chart-container" style="position: relative; height: 260px; width: 100%;">
+                <canvas id="attendanceChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-details-grid">
+        <!-- Quick Action Panels -->
+        <div class="dashboard-column glass-panel">
+            <div class="section-title">
+                <i class="fa-solid fa-rocket text-primary"></i>
+                <h3>Quick Administrative Actions</h3>
+            </div>
+            <p class="action-desc">Select an operations route below to manage active registry instances.</p>
+            <div class="actions-vertical-menu">
+                <a href="{{ url_for('students_list') }}" class="action-menu-item">
+                    <span class="menu-item-icon bg-soft-primary"><i class="fa-solid fa-users"></i></span>
+                    <div class="menu-item-text">
+                        <strong>Manage Roster</strong>
+                        <span>Add, delete, and browse registered students</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right item-arrow"></i>
+                </a>
+
+                <a href="{{ url_for('attendance') }}" class="action-menu-item">
+                    <span class="menu-item-icon bg-soft-success"><i class="fa-solid fa-calendar-check"></i></span>
+                    <div class="menu-item-text">
+                        <strong>Attendance Sheet</strong>
+                        <span>Track daily classroom presence records</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right item-arrow"></i>
+                </a>
+
+                <a href="{{ url_for('marks') }}" class="action-menu-item">
+                    <span class="menu-item-icon bg-soft-warning"><i class="fa-solid fa-square-poll-vertical"></i></span>
+                    <div class="menu-item-text">
+                        <strong>Grade Book</strong>
+                        <span>Manage and calculate subject percentages</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right item-arrow"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Recent Logs Section -->
+        <div class="dashboard-column glass-panel">
+            <div class="section-title">
+                <i class="fa-regular fa-clock text-primary"></i>
+                <h3>Recent System Activities</h3>
+            </div>
+            <div class="activity-timeline">
+                <div class="timeline-item">
+                    <div class="timeline-bullet bg-success"></div>
+                    <div class="timeline-content">
+                        <strong>User Session Initiated</strong>
+                        <span>Successful administrative log in by {{ current_user.username }}.</span>
+                        <small class="time-stamp">Just now</small>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-bullet bg-primary"></div>
+                    <div class="timeline-content">
+                        <strong>Database Schema Synchronized</strong>
+                        <span>SQL tables verified and mapped.</span>
+                        <small class="time-stamp">Live updates</small>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-bullet bg-warning"></div>
+                    <div class="timeline-content">
+                        <strong>Live API Endpoints Mounted</strong>
+                        <span>Dynamic student marks, attendance profiles, and coding portals integrated.</span>
+                        <small class="time-stamp">Operational</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js CDN & Render Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const chartLabels = {{ chart_data.labels | tojson }};
+        const chartMarks = {{ chart_data.marks | tojson }};
+        const chartAttendance = {{ chart_data.attendance | tojson }};
+
+        // Marks Chart Setup
+        const ctxMarks = document.getElementById('marksChart').getContext('2d');
+        new Chart(ctxMarks, {
+            type: 'bar',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Avg Score / 100',
+                    data: chartMarks,
+                    backgroundColor: [
+                        'rgba(99, 102, 241, 0.45)', // Indigo
+                        'rgba(16, 185, 129, 0.45)', // Success Green
+                        'rgba(245, 158, 11, 0.45)',  // Warning Gold
+                        'rgba(239, 68, 68, 0.45)',   // Danger Red
+                        'rgba(168, 85, 247, 0.45)'   // Accent Purple
+                    ],
+                    borderColor: [
+                        '#6366f1',
+                        '#10b981',
+                        '#f59e0b',
+                        '#ef4444',
+                        '#a855f7'
+                    ],
+                    borderWidth: 1.5,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                        titleColor: '#fff',
+                        bodyColor: '#94a3b8',
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans' } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans' } }
+                    }
+                }
+            }
+        });
+
+        // Attendance Chart Setup
+        const ctxAttendance = document.getElementById('attendanceChart').getContext('2d');
+        new Chart(ctxAttendance, {
+            type: 'line',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Attendance %',
+                    data: chartAttendance,
+                    fill: true,
+                    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                    borderColor: '#10b981',
+                    borderWidth: 2,
+                    tension: 0.35,
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#fff',
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                        titleColor: '#fff',
+                        bodyColor: '#94a3b8',
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans' } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans' } }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

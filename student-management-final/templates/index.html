@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Welcome - StudentHub{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper" style="max-width: 800px; margin: 0 auto; text-align: center; padding: 40px 20px;">
+    <div class="glass-panel" style="padding: 60px 40px; border-radius: 24px;">
+        <div class="auth-logo-badge" style="width: 80px; height: 80px; font-size: 36px; margin-bottom: 24px;">
+            <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <h1 style="font-family: var(--font-heading); font-size: 42px; font-weight: 800; color: white; margin-bottom: 16px; background: linear-gradient(135deg, white, #cbd5e1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            Academic Intelligence Platform
+        </h1>
+        <p style="font-size: 18px; color: var(--text-muted); line-height: 1.6; max-width: 600px; margin: 0 auto 40px auto;">
+            Welcome to StudentHub, a premium administrative cockpit designed to manage student cohorts, monitor daily attendance registers, grade books, and connect public coding profiles.
+        </p>
+        
+        <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('dashboard') }}" class="btn-primary animate-pulse-glow" style="padding: 16px 32px; font-size: 16px;">
+                    Go to Console <i class="fa-solid fa-gauge-high"></i>
+                </a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn-primary animate-pulse-glow" style="padding: 16px 32px; font-size: 16px;">
+                    Sign In to Console <i class="fa-solid fa-right-to-bracket"></i>
+                </a>
+                <a href="{{ url_for('register') }}" class="btn-secondary" style="padding: 16px 32px; font-size: 16px; border: 1px solid var(--border-color); border-radius: 12px; background: rgba(255, 255, 255, 0.02); display: flex; align-items: center; gap: 10px; transition: all 0.3s ease;">
+                    Register Account <i class="fa-solid fa-user-plus"></i>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.08) !important;
+        border-color: var(--border-hover) !important;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}

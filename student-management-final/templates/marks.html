@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% block title %}Grade Book - StudentHub{% endblock %}
+
+{% block content %}
+<div class="management-container">
+    <!-- Header Section -->
+    <div class="directory-header glass-panel">
+        <div class="header-info">
+            <span class="badge badge-warning"><i class="fa-solid fa-square-poll-vertical"></i> Academic Marks</span>
+            <h1>Grade Book</h1>
+            <p>Record student performance metrics, update grades, and track class achievements.</p>
+        </div>
+    </div>
+
+    <!-- Update Grades Form Section -->
+    <div class="form-section glass-panel" style="padding: 30px;">
+        <div class="section-title">
+            <i class="fa-solid fa-award text-primary"></i>
+            <h3>Record / Update Student Grade</h3>
+        </div>
+        <p class="action-desc" style="margin-bottom: 20px;">Select a student and record their grade for a subject. If the record exists, the grade will be updated.</p>
+        
+        <form action="{{ url_for('marks') }}" method="POST" class="horizontal-form">
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
+                
+                <div class="form-group" style="flex: 1; min-width: 200px;">
+                    <label for="student_id">Select Student</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-user-graduate" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"></i>
+                        <select id="student_id" name="student_id" required style="width: 100%; background: rgba(13, 20, 35, 0.5); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px 16px 14px 44px; color: white; font-size: 14px; appearance: none; -webkit-appearance: none; cursor: pointer; font-family:var(--font-body);">
+                            <option value="" disabled selected style="background: var(--bg-primary); color: white;">-- Select Student --</option>
+                            {% for s in students %}
+                                <option value="{{ s.id }}" style="background: var(--bg-primary); color: white;">{{ s.name }} ({{ s.course }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" style="flex: 1; min-width: 200px;">
+                    <label for="subject">Subject Name</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-book"></i>
+                        <input type="text" id="subject" name="subject" placeholder="e.g. Advanced Python" required>
+                    </div>
+                </div>
+
+                <div class="form-group" style="flex: 0.5; min-width: 120px;">
+                    <label for="score">Score Obtained</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-star"></i>
+                        <input type="number" id="score" name="score" placeholder="e.g. 95" min="0" max="100" required>
+                    </div>
+                </div>
+
+                <div class="form-group" style="flex: 0.5; min-width: 120px;">
+                    <label for="max_score">Max Possible</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <input type="number" id="max_score" name="max_score" value="100" min="1" required>
+                    </div>
+                </div>
+
+                <div style="min-width: 150px;">
+                    <button type="submit" class="btn-primary animate-pulse-glow" style="width:100%; padding: 14px; border-radius:12px; font-weight:600; display:flex; align-items:center; justify-content:center; gap:8px;">
+                        Save Grade <i class="fa-solid fa-floppy-disk"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Active Mark Records -->
+    <div class="table-section glass-panel">
+        <div class="section-title">
+            <i class="fa-solid fa-award text-primary"></i>
+            <h3>Subject Performance Matrix</h3>
+        </div>
+        <p class="action-desc" style="margin-bottom: 20px;">Roster grid showing all graded subjects, scores, and calculated grades.</p>
+
+        <div class="table-responsive">
+            {% if scores %}
+                <table class="glass-table">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Course</th>
+                            <th>Subject</th>
+                            <th style="text-align: center;">Score</th>
+                            <th style="text-align: center;">Letter Grade</th>
+                            <th style="text-align: center;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in scores %}
+                            <tr class="table-row-interactive" onclick="window.location='{{ url_for('student_profile', id=item.student.id) }}'" style="cursor: pointer;">
+                                <td>
+                                    <div class="student-profile-cell">
+                                        <span class="avatar-sm"><i class="fa-solid fa-user-graduate"></i></span>
+                                        <strong>{{ item.student.name }}</strong>
+                                    </div>
+                                </td>
+                                <td><span class="badge badge-course" style="margin-bottom:0;">{{ item.student.course }}</span></td>
+                                <td>{{ item.subject }}</td>
+                                <td style="text-align: center;"><strong>{{ item.score }} / {{ item.max_score }}</strong></td>
+                                
+                                <td style="text-align: center;">
+                                    {% set pct = (item.score / item.max_score) * 100 %}
+                                    {% if pct >= 90 %}
+                                        <span class="badge-grade grade-a" style="padding: 4px 10px; font-size:11px; font-weight:700; border-radius:6px; background:rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.25);">A+</span>
+                                    {% elif pct >= 80 %}
+                                        <span class="badge-grade grade-b" style="padding: 4px 10px; font-size:11px; font-weight:700; border-radius:6px; background:rgba(99,102,241,0.15); color:#818cf8; border:1px solid rgba(99,102,241,0.25);">B+</span>
+                                    {% elif pct >= 70 %}
+                                        <span class="badge-grade grade-c" style="padding: 4px 10px; font-size:11px; font-weight:700; border-radius:6px; background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.25);">C+</span>
+                                    {% else %}
+                                        <span class="badge-grade grade-f" style="padding: 4px 10px; font-size:11px; font-weight:700; border-radius:6px; background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.25);">F</span>
+                                    {% endif %}
+                                </td>
+                                
+                                <td style="text-align: center;">
+                                    {% if pct >= 50 %}
+                                        <span class="pill-badge pill-success" style="padding: 4px 10px; font-size:11px; border-radius:20px; display:inline-flex; align-items:center; gap:5px; background:rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.25);"><i class="fa-solid fa-circle-check"></i> Passed</span>
+                                    {% else %}
+                                        <span class="pill-badge pill-danger" style="padding: 4px 10px; font-size:11px; border-radius:20px; display:inline-flex; align-items:center; gap:5px; background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.25);"><i class="fa-solid fa-triangle-exclamation"></i> Retake</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="fa-solid fa-award animate-bounce"></i></div>
+                    <h4>No Marks Recorded</h4>
+                    <p>There are no grades saved in the database yet. Use the record form above to enter the first score record.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    select:focus {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 4px var(--primary-soft);
+    }
+</style>
+{% endblock %}

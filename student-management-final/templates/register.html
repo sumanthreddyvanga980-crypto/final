@@ -1,0 +1,249 @@
+{% extends 'base.html' %}
+{% block title %}Register - StudentHub{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card glass-panel" style="max-width: 480px; position: relative; overflow: hidden; min-height: 520px;">
+        
+        <!-- ======================================= -->
+        <!-- STEP 1: EMAIL OTP VERIFICATION -->
+        <!-- ======================================= -->
+        <div id="step-verification" class="auth-step active-step">
+            <div class="auth-header">
+                <div class="auth-logo-badge">
+                    <i class="fa-solid fa-envelope-circle-check"></i>
+                </div>
+                <h2>Email Verification</h2>
+                <p>Verify your email address before setting up your credentials.</p>
+            </div>
+
+            <!-- Email submission block -->
+            <div id="email-send-block" class="auth-form">
+                <div class="form-group">
+                    <label for="reg-email">Email Address</label>
+                    <div class="input-with-icon">
+                        <i class="fa-regular fa-envelope"></i>
+                        <input type="email" id="reg-email" placeholder="Enter your email address" required>
+                    </div>
+                </div>
+                
+                <button type="button" id="btn-send-otp" class="btn-primary btn-block animate-pulse-glow">
+                    Send Verification Code <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+
+            <!-- OTP entry block (hidden initially) -->
+            <div id="otp-verify-block" class="auth-form" style="display: none; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border-color);">
+                <div class="form-group">
+                    <label for="reg-otp">6-Digit Verification Code</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-key"></i>
+                        <input type="text" id="reg-otp" placeholder="Enter the OTP code" maxlength="6" style="text-align: center; letter-spacing: 4px; font-weight: 700; font-size: 16px;">
+                    </div>
+                </div>
+                
+                <button type="button" id="btn-verify-otp" class="btn-primary btn-block">
+                    Verify Code <i class="fa-solid fa-circle-check"></i>
+                </button>
+                
+                <p style="font-size: 12px; color: var(--text-muted); text-align: center; margin-top: 14px;">
+                    If the email did not arrive, check your spam folder or verify you typed the address correctly.
+                </p>
+            </div>
+
+            <!-- Dev fallback notice container -->
+            <div id="dev-fallback-notice" class="glass-panel" style="display: none; margin-top: 20px; padding: 15px; border-color: var(--warning); background: var(--warning-soft); color: white;">
+                <h4 style="font-size: 13px; font-family: var(--font-heading); margin-bottom: 4px; color: #fbbf24;"><i class="fa-solid fa-triangle-exclamation"></i> Development Fallback</h4>
+                <p id="dev-otp-msg" style="font-size: 12px; line-height: 1.4; color: var(--text-main);"></p>
+            </div>
+        </div>
+
+        <!-- ======================================= -->
+        <!-- STEP 2: ACCOUNT REGISTRATION -->
+        <!-- ======================================= -->
+        <div id="step-registration" class="auth-step" style="display: none;">
+            <div class="auth-header">
+                <div class="auth-logo-badge">
+                    <i class="fa-solid fa-user-plus"></i>
+                </div>
+                <h2>Create Credentials</h2>
+                <p>Almost there! Define your account username and secure password.</p>
+            </div>
+
+            <form action="{{ url_for('register') }}" method="POST" class="auth-form">
+                <!-- Verified Email (Read-Only) -->
+                <div class="form-group">
+                    <label>Verified Email</label>
+                    <div class="input-with-icon">
+                        <i class="fa-regular fa-envelope" style="opacity: 0.6;"></i>
+                        <input type="email" id="final-email" name="email" readonly required style="background: rgba(255, 255, 255, 0.03); color: var(--text-muted); cursor: not-allowed; border-color: rgba(255, 255, 255, 0.05);">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="username">Choose Username</label>
+                    <div class="input-with-icon">
+                        <i class="fa-regular fa-user"></i>
+                        <input type="text" id="username" name="username" placeholder="Choose a unique username" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Create Password</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="password" name="password" placeholder="Create a strong password" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm_password">Confirm Password</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <input type="password" id="confirm_password" name="confirm_password" placeholder="Repeat password" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary btn-block animate-pulse-glow">
+                    Complete Registration <i class="fa-solid fa-circle-check"></i>
+                </button>
+            </form>
+        </div>
+
+        <div class="auth-footer" style="margin-top: 30px;">
+            <p>Already registered? <a href="{{ url_for('login') }}" class="auth-link">Sign In</a></p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .auth-step {
+        transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .auth-step.active-step {
+        animation: fadeInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes fadeInRight {
+        from { opacity: 0; transform: translateX(20px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+    .btn-disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const btnSendOtp = document.getElementById("btn-send-otp");
+        const btnVerifyOtp = document.getElementById("btn-verify-otp");
+        const regEmail = document.getElementById("reg-email");
+        const regOtp = document.getElementById("reg-otp");
+        
+        const emailSendBlock = document.getElementById("email-send-block");
+        const otpVerifyBlock = document.getElementById("otp-verify-block");
+        const devFallbackNotice = document.getElementById("dev-fallback-notice");
+        const devOtpMsg = document.getElementById("dev-otp-msg");
+        
+        const stepVerification = document.getElementById("step-verification");
+        const stepRegistration = document.getElementById("step-registration");
+        const finalEmail = document.getElementById("final-email");
+
+        // STEP 1: Request OTP
+        btnSendOtp.addEventListener("click", async () => {
+            const emailVal = regEmail.value.trim();
+            if (!emailVal) {
+                alert("Please enter a valid email address.");
+                return;
+            }
+
+            btnSendOtp.classList.add("btn-disabled");
+            btnSendOtp.innerHTML = 'Sending Code... <i class="fa-solid fa-spinner fa-spin"></i>';
+
+            try {
+                const response = await fetch("{{ url_for('send_otp') }}", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: emailVal })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.status === "success") {
+                    // Check if fallback OTP is provided in response (development fallback)
+                    if (data.fallback_otp) {
+                        devOtpMsg.innerHTML = `Mail system is in development mode. Your verification code is: <strong style="font-size:14px; color:#fbbf24;">${data.fallback_otp}</strong>`;
+                        devFallbackNotice.style.display = "block";
+                    } else {
+                        devFallbackNotice.style.display = "none";
+                    }
+                    
+                    // Disable email edits and show verification input
+                    regEmail.setAttribute("readonly", true);
+                    regEmail.style.background = "rgba(255,255,255,0.03)";
+                    btnSendOtp.style.display = "none";
+                    otpVerifyBlock.style.display = "block";
+                    
+                    // Show a success toast if possible
+                    alert("A 6-digit OTP code has been generated. Please check your inbox or the system console.");
+                } else {
+                    alert(data.message || "Failed to send verification code. Please check email address and try again.");
+                    btnSendOtp.classList.remove("btn-disabled");
+                    btnSendOtp.innerHTML = 'Send Verification Code <i class="fa-solid fa-paper-plane"></i>';
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Network error occurred while connecting to OTP service.");
+                btnSendOtp.classList.remove("btn-disabled");
+                btnSendOtp.innerHTML = 'Send Verification Code <i class="fa-solid fa-paper-plane"></i>';
+            }
+        });
+
+        // STEP 2: Verify OTP
+        btnVerifyOtp.addEventListener("click", async () => {
+            const emailVal = regEmail.value.trim();
+            const otpVal = regOtp.value.trim();
+
+            if (!otpVal || otpVal.length !== 6) {
+                alert("Please enter the full 6-digit verification code.");
+                return;
+            }
+
+            btnVerifyOtp.classList.add("btn-disabled");
+            btnVerifyOtp.innerHTML = 'Verifying... <i class="fa-solid fa-spinner fa-spin"></i>';
+
+            try {
+                const response = await fetch("{{ url_for('verify_otp_ajax') }}", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: emailVal, otp: otpVal })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.status === "success") {
+                    alert("Email verified successfully!");
+                    
+                    // Populate email in the final registration block
+                    finalEmail.value = emailVal;
+                    
+                    // Toggling views
+                    stepVerification.style.display = "none";
+                    stepRegistration.style.display = "block";
+                    stepRegistration.classList.add("active-step");
+                } else {
+                    alert(data.message || "Verification code is incorrect.");
+                    btnVerifyOtp.classList.remove("btn-disabled");
+                    btnVerifyOtp.innerHTML = 'Verify Code <i class="fa-solid fa-circle-check"></i>';
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Verification request failed. Please check connection.");
+                btnVerifyOtp.classList.remove("btn-disabled");
+                btnVerifyOtp.innerHTML = 'Verify Code <i class="fa-solid fa-circle-check"></i>';
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block title %}Feedback & Compliments - StudentHub{% endblock %}
+
+{% block content %}
+<div class="management-container">
+    <!-- Header Section -->
+    <div class="directory-header glass-panel">
+        <div class="header-info">
+            <span class="badge badge-success"><i class="fa-solid fa-comments"></i> Compliment Panel</span>
+            <h1>Feedback & Compliment Box</h1>
+            <p>Tell us about your experience or drop a compliment for your students and teachers.</p>
+        </div>
+        <div class="header-stats">
+            <div class="stat-circle">
+                <span class="stat-number">{{ feedbacks|length }}</span>
+                <span class="stat-label">Submissions</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="dashboard-details-grid">
+        <!-- Feedback Form -->
+        <div class="dashboard-column glass-panel">
+            <div class="section-title">
+                <i class="fa-solid fa-pen-to-square text-primary"></i>
+                <h3>Submit Response</h3>
+            </div>
+            <p class="action-desc">Your thoughts help us cultivate an environment of academic excellence.</p>
+            
+            <form action="{{ url_for('feedback_panel') }}" method="POST" class="auth-form" style="margin-top: 20px;">
+                <div class="form-group">
+                    <label for="name">Your Name</label>
+                    <div class="input-with-icon">
+                        <i class="fa-regular fa-user"></i>
+                        <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <div class="input-with-icon">
+                        <i class="fa-regular fa-envelope"></i>
+                        <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="type">Response Type</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-tags" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;"></i>
+                        <select id="type" name="type" required style="width: 100%; background: rgba(13, 20, 35, 0.5); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px 16px 14px 44px; color: white; font-size: 14px; appearance: none; -webkit-appearance: none; cursor: pointer; font-family:var(--font-body);">
+                            <option value="compliment" style="background: var(--bg-primary); color: white;">🌟 Compliment</option>
+                            <option value="feedback" style="background: var(--bg-primary); color: white;">💬 Suggestion / Feedback</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" rows="5" placeholder="Share your message here..." required style="width: 100%; background: rgba(13, 20, 35, 0.5); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px 16px; color: white; font-size: 14px; resize: vertical; min-height: 120px; outline: none; transition: all 0.3s ease;"></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary btn-block animate-pulse-glow" style="margin-top: 20px;">
+                    Submit Entry <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- Feedback Stream -->
+        <div class="dashboard-column glass-panel">
+            <div class="section-title">
+                <i class="fa-solid fa-clock-rotate-left text-primary"></i>
+                <h3>Active Feedback Stream</h3>
+            </div>
+            <p class="action-desc">Live submissions and compliments from community users.</p>
+            
+            <div class="activity-timeline" style="margin-top: 20px; max-height: 480px; overflow-y: auto; padding-right: 10px;">
+                {% if feedbacks %}
+                    {% for fb in feedbacks %}
+                        <div class="timeline-item" style="margin-bottom: 20px;">
+                            <div class="timeline-bullet {% if fb.type == 'compliment' %}bg-success{% else %}bg-primary{% endif %}"></div>
+                            <div class="timeline-content glass-panel" style="padding: 16px; margin-left: 10px; border-color: rgba(255, 255, 255, 0.05); background: rgba(255, 255, 255, 0.01);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <strong style="color: white; font-size:14px;">{{ fb.name }}</strong>
+                                    {% if fb.type == 'compliment' %}
+                                        <span class="badge badge-success" style="margin-bottom: 0; padding: 3px 8px; font-size: 9px; background:rgba(16,185,129,0.15); color:#10b981;"><i class="fa-solid fa-star"></i> Compliment</span>
+                                    {% else %}
+                                        <span class="badge badge-primary" style="margin-bottom: 0; padding: 3px 8px; font-size: 9px; background:rgba(99,102,241,0.15); color:#818cf8;"><i class="fa-solid fa-message"></i> Feedback</span>
+                                    {% endif %}
+                                </div>
+                                <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; font-style: italic; margin-bottom: 10px;">"{{ fb.message }}"</p>
+                                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 10px; opacity: 0.6; color: var(--text-muted); border-top:1px solid rgba(255,255,255,0.03); padding-top:8px;">
+                                    <span><i class="fa-regular fa-envelope"></i> {{ fb.email }}</span>
+                                    <span><i class="fa-regular fa-clock"></i> {{ fb.created_at.strftime('%b %d, %Y') if fb.created_at else 'Just now' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
+                        <i class="fa-solid fa-inbox" style="font-size: 40px; margin-bottom: 12px; opacity: 0.3;"></i>
+                        <p>No feedback entries submitted yet. Be the first to leave one!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    textarea:focus {
+        border-color: var(--primary) !important;
+        background: rgba(13, 20, 35, 0.8) !important;
+        box-shadow: 0 0 0 4px var(--primary-soft) !important;
+    }
+</style>
+{% endblock %}

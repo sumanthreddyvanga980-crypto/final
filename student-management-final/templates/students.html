@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% block title %}Manage Students - StudentHub{% endblock %}
+
+{% block content %}
+<div class="management-container">
+    <!-- Directory Header Panel -->
+    <div class="directory-header glass-panel">
+        <div class="header-info">
+            <span class="badge badge-accent"><i class="fa-solid fa-database"></i> Live Database</span>
+            <h1>Student Directory</h1>
+            <p>Add new records, view academic profiles, and manage database entities.</p>
+        </div>
+        <div class="header-stats">
+            <div class="stat-circle">
+                <span class="stat-number">{{ students|length }}</span>
+                <span class="stat-label">Enrolled</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Student Form Section (Expanded with Coding Profile IDs) -->
+    <div class="form-section glass-panel" style="padding: 30px;">
+        <div class="section-title">
+            <i class="fa-solid fa-user-plus text-primary"></i>
+            <h3>Enroll New Student</h3>
+        </div>
+        <p class="action-desc" style="margin-bottom: 20px;">Provide the student's personal details and connected public competitive programming profiles below.</p>
+        
+        <form action="{{ url_for('add_student') }}" method="POST" class="horizontal-form" style="display: flex; flex-direction: column; gap: 20px;">
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <!-- Basic details -->
+                <div class="form-group" style="flex: 1; min-width: 200px;">
+                    <label>Full Name</label>
+                    <div class="input-with-icon">
+                        <i class="fa-regular fa-user"></i>
+                        <input type="text" name="name" placeholder="Full Name" required>
+                    </div>
+                </div>
+
+                <div class="form-group" style="flex: 1; min-width: 200px;">
+                    <label>Email Address</label>
+                    <div class="input-with-icon">
+                        <i class="fa-regular fa-envelope"></i>
+                        <input type="email" name="email" placeholder="Email Address" required>
+                    </div>
+                </div>
+
+                <div class="form-group" style="flex: 1; min-width: 200px;">
+                    <label>Assigned Course</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-book-open-reader"></i>
+                        <input type="text" name="course" placeholder="Course Name" required>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.04);">
+                <!-- Coding handles -->
+                <div class="form-group" style="flex: 1; min-width: 200px;">
+                    <label>LeetCode Username</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-code"></i>
+                        <input type="text" name="leetcode_id" placeholder="Enter LeetCode username">
+                    </div>
+                </div>
+
+                <div class="form-group" style="flex: 1; min-width: 200px;">
+                    <label>HackerEarth Username</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-terminal"></i>
+                        <input type="text" name="hackerearth_id" placeholder="Enter HackerEarth username">
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: flex-end; justify-content: flex-end; padding-top: 24px; min-width: 200px;">
+                    <button type="submit" class="btn-success" style="width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.3s ease;">
+                        <i class="fa-solid fa-plus"></i> Enroll Student
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Student Table Listing Section -->
+    <div class="table-section glass-panel">
+        <div class="section-title">
+            <i class="fa-solid fa-users text-primary"></i>
+            <h3>Student Roster</h3>
+        </div>
+        <p class="action-desc" style="margin-bottom: 20px;">Click on any row to open the student's personal profile, view academic grades, and check coding platform charts.</p>
+
+        <div class="table-responsive">
+            {% if students %}
+                <table class="glass-table">
+                    <thead>
+                        <tr>
+                            <th><i class="fa-solid fa-hashtag"></i> ID</th>
+                            <th><i class="fa-solid fa-signature"></i> Student Name</th>
+                            <th><i class="fa-solid fa-envelope"></i> Email Contact</th>
+                            <th><i class="fa-solid fa-graduation-cap"></i> Assigned Course</th>
+                            <th><i class="fa-solid fa-code"></i> LeetCode</th>
+                            <th><i class="fa-solid fa-terminal"></i> HackerEarth</th>
+                            <th style="text-align: center;"><i class="fa-solid fa-eye"></i> Profile</th>
+                            <th style="text-align: center;"><i class="fa-solid fa-trash-can"></i> Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                            <tr class="table-row-interactive" onclick="window.location='{{ url_for('student_profile', id=student.id) }}'" style="cursor: pointer;">
+                                <td class="td-id">{{ student.id }}</td>
+                                <td class="td-name">
+                                    <div class="student-profile-cell">
+                                        <span class="avatar-sm"><i class="fa-solid fa-user-graduate"></i></span>
+                                        <strong>{{ student.name }}</strong>
+                                    </div>
+                                </td>
+                                <td class="td-email" onclick="event.stopPropagation();">
+                                    <a href="mailto:{{ student.email }}" class="email-link"><i class="fa-regular fa-paper-plane"></i> {{ student.email }}</a>
+                                </td>
+                                <td class="td-course"><span class="badge badge-course" style="margin-bottom:0;">{{ student.course }}</span></td>
+                                
+                                <td>
+                                    {% if student.leetcode_id %}
+                                        <span class="text-accent" style="font-size:13px; font-weight:600;"><i class="fa-solid fa-code" style="color: #f59e0b; margin-right: 4px;"></i> {{ student.leetcode_id }}</span>
+                                    {% else %}
+                                        <span style="opacity: 0.4; font-size:12px;">--</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if student.hackerearth_id %}
+                                        <span class="text-accent" style="font-size:13px; font-weight:600;"><i class="fa-solid fa-terminal" style="color: #3b82f6; margin-right: 4px;"></i> {{ student.hackerearth_id }}</span>
+                                    {% else %}
+                                        <span style="opacity: 0.4; font-size:12px;">--</span>
+                                    {% endif %}
+                                </td>
+
+                                <td style="text-align: center;">
+                                    <span class="badge badge-primary" style="margin-bottom:0; padding: 4px 10px; font-size: 10px;">View</span>
+                                </td>
+
+                                <td style="text-align: center;" onclick="event.stopPropagation();">
+                                    <a href="{{ url_for('delete_student', id=student.id) }}" class="btn-logout" title="Remove Student" onclick="return confirm('Are you sure you want to delete this student and all their academic/attendance records?');" style="margin: 0 auto;">
+                                        <i class="fa-solid fa-trash-can" style="font-size: 13px;"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="fa-solid fa-user-slash animate-bounce"></i></div>
+                    <h4>No Students Enrolled</h4>
+                    <p>The student directory is currently empty. Use the enrollment form above to add your first student record.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

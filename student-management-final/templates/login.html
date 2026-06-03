@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Login - StudentHub{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card glass-panel">
+        <div class="auth-header">
+            <div class="auth-logo-badge">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <h2>Welcome Back</h2>
+            <p>Enter your credentials to access the portal</p>
+        </div>
+
+        <form action="{{ url_for('login') }}" method="POST" class="auth-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <div class="input-with-icon">
+                    <i class="fa-regular fa-user"></i>
+                    <input type="text" 
+                           id="username" 
+                           name="username" 
+                           placeholder="Enter your username" 
+                           required 
+                           autocomplete="username">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" 
+                           id="password" 
+                           name="password" 
+                           placeholder="Enter your password" 
+                           required 
+                           autocomplete="current-password">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary btn-block animate-pulse-glow">
+                Sign In <i class="fa-solid fa-arrow-right-to-bracket"></i>
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>New to StudentHub? <a href="{{ url_for('register') }}" class="auth-link">Create an account</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
