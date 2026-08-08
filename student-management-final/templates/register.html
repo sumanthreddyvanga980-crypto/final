@@ -50,12 +50,6 @@
                     If the email did not arrive, check your spam folder or verify you typed the address correctly.
                 </p>
             </div>
-
-            <!-- Dev fallback notice container -->
-            <div id="dev-fallback-notice" class="glass-panel" style="display: none; margin-top: 20px; padding: 15px; border-color: var(--warning); background: var(--warning-soft); color: white;">
-                <h4 style="font-size: 13px; font-family: var(--font-heading); margin-bottom: 4px; color: #fbbf24;"><i class="fa-solid fa-triangle-exclamation"></i> Development Fallback</h4>
-                <p id="dev-otp-msg" style="font-size: 12px; line-height: 1.4; color: var(--text-main);"></p>
-            </div>
         </div>
 
         <!-- ======================================= -->
@@ -143,8 +137,6 @@
         
         const emailSendBlock = document.getElementById("email-send-block");
         const otpVerifyBlock = document.getElementById("otp-verify-block");
-        const devFallbackNotice = document.getElementById("dev-fallback-notice");
-        const devOtpMsg = document.getElementById("dev-otp-msg");
         
         const stepVerification = document.getElementById("step-verification");
         const stepRegistration = document.getElementById("step-registration");
@@ -171,14 +163,7 @@
                 const data = await response.json();
                 
                 if (response.ok && data.status === "success") {
-                    // Check if fallback OTP is provided in response (development fallback)
-                    if (data.fallback_otp) {
-                        devOtpMsg.innerHTML = `Mail system is in development mode. Your verification code is: <strong style="font-size:14px; color:#fbbf24;">${data.fallback_otp}</strong>`;
-                        devFallbackNotice.style.display = "block";
-                    } else {
-                        devFallbackNotice.style.display = "none";
-                    }
-                    
+                    // OTP is never displayed on the website. The user must retrieve it from email.
                     // Disable email edits and show verification input
                     regEmail.setAttribute("readonly", true);
                     regEmail.style.background = "rgba(255,255,255,0.03)";
@@ -186,7 +171,7 @@
                     otpVerifyBlock.style.display = "block";
                     
                     // Show a success toast if possible
-                    alert("A 6-digit OTP code has been generated. Please check your inbox or the system console.");
+                    alert("A 6-digit OTP has been sent to your email. Please check your inbox and enter the code.");
                 } else {
                     alert(data.message || "Failed to send verification code. Please check email address and try again.");
                     btnSendOtp.classList.remove("btn-disabled");
