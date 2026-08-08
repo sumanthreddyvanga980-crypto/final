@@ -58,18 +58,25 @@ def send_otp():
         email_sent = send_otp_email(email, otp)
         
         if not email_sent:
-            # Fallback: OTP logged to console. Return it in response for dev testing if credentials are placeholders.
-            return jsonify({
-                "status": "success", 
-                "fallback_otp": otp,
-                "message": "OTP verification code generated. Since SMTP is not configured, the code is printed in the terminal console, or you can use the code displayed here: " + otp
-            })
+            # Never expose the OTP in the browser.
+            # If email delivery fails, ask the user to try again.
+            session.pop('register_otp', None)
+            session.pop('register_email', None)
+            session.pop('email_verified', None)
 
-        return jsonify({"status": "success", "message": "Verification code sent to your email!"})
+            return jsonify({
+                "status": "error",
+                "message": "Unable to send the OTP to your email. Please check the email address and try again."
+            }), 500
+
+        return jsonify({
+            "status": "success",
+            "message": "Verification code sent to your email!"
+        })
 
     except Exception as e:
         print("SEND OTP ERROR:", e)
-        return jsonify({"status": "error", "message": f"Server error: {str(e)}"}), 500
+        return jsonify({"status": "error", "message": "Unable to process the OTP request. Please try again later."}), 500
 
 
 @app.route('/register/verify-otp', methods=['POST'])
